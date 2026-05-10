@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modulo Iscrizione – L'Arcobaleno dei Bimbi 2026/2027</title>
+<style>
+:root {
+  --verde:        #1D9E75;
+  --verde-light:  #E1F5EE;
+  --verde-dark:   #0F6E56;
+  --grigio:       #f7f8fa;
+  --bordo:        #e2e8f0;
+  --testo:        #1a1a2e;
+  --testo2:       #64748b;
+  --rosso:        #ef4444;
+  --rosso-light:  #fee2e2;
+  --ombra:        0 2px 12px rgba(0,0,0,.08);
+  --radius:       12px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--grigio); color: var(--testo); font-size: 14px; min-height: 100vh; }
+
+/* ── HEADER ── */
+.page-header {
+  background: linear-gradient(135deg, var(--verde-dark) 0%, var(--verde) 100%);
+  color: white;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 58px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,.2);
+}
+.page-header h1 { font-size: 16px; font-weight: 700; letter-spacing: .02em; display: flex; align-items: center; gap: 8px; }
+.page-header small { font-size: 11px; opacity: .75; display: block; margin-top: 1px; }
+
+/* ── NAV ── */
+.nav-sezioni {
+  background: white; border-bottom: 1px solid var(--bordo);
+  padding: 0 16px; display: flex; gap: 2px; overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-sezioni::-webkit-scrollbar { display: none; }
+.nav-btn {
+  padding: 10px 14px; border: none; background: none;
+  font-size: 12.5px; font-weight: 600; color: var(--testo2);
+  cursor: pointer; border-bottom: 2.5px solid transparent;
+  white-space: nowrap; transition: all .18s; flex-shrink: 0;
+}
+.nav-btn:hover { color: var(--verde); }
+.nav-btn.attivo { color: var(--verde); border-bottom-color: var(--verde); }
+.nav-btn.gestione { margin-left: auto; color: var(--testo2); }
+
+/* ── PROGRESS ── */
+.progress-wrap { background: white; padding: 10px 24px 0; border-bottom: 1px solid var(--bordo); }
+.progress-track { height: 4px; background: var(--bordo); border-radius: 2px; margin-bottom: 6px; }
+.progress-fill  { height: 100%; background: var(--verde); border-radius: 2px; transition: width .4s cubic-bezier(.4,0,.2,1); }
+.progress-label { font-size: 11px; color: var(--testo2); padding-bottom: 8px; }
+
+/* ── CONTENUTO ── */
+.contenuto { max-width: 820px; margin: 20px auto 80px; padding: 0 16px; }
+
+/* ── CARD ── */
+.card {
+  background: white; border-radius: var(--radius);
+  box-shadow: var(--ombra); padding: 24px;
+  margin-bottom: 18px; border: 1px solid var(--bordo);
+}
+.card-titolo {
+  font-size: 14px; font-weight: 700; color: var(--verde-dark);
+  margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+}
+.card-titolo::before {
+  content: ''; display: block;
+  width: 3px; height: 16px;
+  background: var(--verde); border-radius: 2px; flex-shrink: 0;
+}
+
+/* ── FORM ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid.col3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-grid.col1 { grid-template-columns: 1fr; }
+.campo { display: flex; flex-direction: column; gap: 4px; }
+.campo label { font-size: 11.5px; font-weight: 600; color: var(--testo2); text-transform: uppercase; letter-spacing: .04em; }
+.campo input, .campo select, .campo textarea {
+  padding: 9px 12px; border: 1.5px solid var(--bordo);
+  border-radius: 8px; font-size: 13.5px; font-family: inherit;
+  transition: border-color .18s, box-shadow .18s; background: white; color: var(--testo);
+}
+.campo input:focus, .campo select:focus, .campo textarea:focus {
+  outline: none; border-color: var(--verde);
+  box-shadow: 0 0 0 3px rgba(29,158,117,.1);
+}
+.campo textarea { resize: vertical; min-height: 72px; }
+.sep-h { grid-column: 1/-1; border: none; border-top: 1px solid var(--bordo); margin: 2px 0; }
+
+/* ── OPZIONI ── */
+.opzioni-gruppo { display: flex; flex-direction: column; gap: 8px; }
+.opzione {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border: 1.5px solid var(--bordo);
+  border-radius: 8px; cursor: pointer; transition: all .18s; font-size: 13.5px; user-select: none;
+}
+.opzione:hover { border-color: var(--verde); background: var(--verde-light); }
+.opzione.selezionata { border-color: var(--verde); background: var(--verde-light); }
+.opzione input[type=radio], .opzione input[type=checkbox] { accent-color: var(--verde); width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ── FIRMA ── */
+.firma-area { border: 1.5px dashed var(--bordo); border-radius: 10px; padding: 12px; }
+.firma-hint { font-size: 12px; color: var(--testo2); margin-bottom: 8px; text-align: center; }
+canvas.firma {
+  display: block; border: 1px solid var(--bordo); border-radius: 6px;
+  background: #fafafa; cursor: crosshair; touch-action: none; width: 100%; height: 90px;
+}
+.firma-azioni { display: flex; gap: 8px; margin-top: 8px; }
+.btn-firma {
+  font-size: 12px; padding: 5px 12px; border-radius: 6px;
+  border: 1.5px solid var(--bordo); background: white;
+  cursor: pointer; font-weight: 600; transition: all .15s;
+}
+.btn-firma:hover { border-color: var(--verde); color: var(--verde); }
+
+/* ── DELEGATI ── */
+.delegato-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 8px; }
+.btn-rimuovi { background: var(--rosso-light); color: var(--rosso); border: none; border-radius: 6px; padding: 9px 12px; cursor: pointer; font-weight: 700; }
+.btn-aggiungi {
+  background: var(--verde-light); color: var(--verde-dark);
+  border: 1.5px solid var(--verde); border-radius: 8px;
+  padding: 8px 16px; font-weight: 700; cursor: pointer; font-size: 13px; margin-top: 6px;
+}
+
+/* ── NAV BOTTOM ── */
+.nav-bottom { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px; }
+.btn { padding: 11px 24px; border-radius: 10px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; transition: all .18s; }
+.btn-prev { background: white; border: 1.5px solid var(--bordo); color: var(--testo2); }
+.btn-prev:hover { border-color: var(--verde); color: var(--verde); }
+.btn-next { background: var(--verde); color: white; }
+.btn-next:hover { background: var(--verde-dark); transform: translateY(-1px); }
+.btn-invia { background: var(--verde-dark); color: white; font-size: 15px; padding: 13px 32px; }
+.btn-invia:hover:not(:disabled) { background: #094d3d; transform: translateY(-1px); }
+.btn-invia:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+/* ── CONFERMA ── */
+#pagina-conferma { display: none; text-align: center; padding: 56px 24px; }
+.icona-ok { font-size: 80px; margin-bottom: 16px; animation: pop .5s cubic-bezier(.175,.885,.32,1.275); }
+@keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+#pagina-conferma h2 { font-size: 26px; color: var(--verde-dark); margin-bottom: 10px; }
+#pagina-conferma p { color: var(--testo2); font-size: 15px; max-width: 460px; margin: 0 auto 28px; line-height: 1.6; }
+
+/* ═══════════════════════════════════════════
+   GESTIONE
+═══════════════════════════════════════════ */
+#pagina-gestione { display: none; }
+
+.gestione-header {
+  background: white; border-radius: var(--radius); box-shadow: var(--ombra);
+  padding: 20px 24px; margin-bottom: 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; border: 1px solid var(--bordo);
+}
+.gestione-header h2 { font-size: 18px; font-weight: 700; color: var(--verde-dark); }
+.sync-stato { font-size: 12px; margin-top: 3px; }
+.sync-stato.ok  { color: var(--verde-dark); }
+.sync-stato.err { color: var(--rosso); }
+.sync-stato.loading { color: var(--testo2); }
+
+.gestione-tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.btn-g {
+  padding: 8px 16px; border-radius: 8px; border: 1.5px solid var(--bordo);
+  background: white; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: all .18s; display: flex; align-items: center; gap: 6px;
+}
+.btn-g:hover { border-color: var(--verde); color: var(--verde); }
+.btn-g.verde { background: var(--verde); color: white; border-color: var(--verde); }
+.btn-g.verde:hover { background: var(--verde-dark); }
+
+/* Barra ricerca */
+.barra-ricerca {
+  background: white; border-radius: var(--radius); box-shadow: var(--ombra);
+  padding: 12px 16px; margin-bottom: 14px; border: 1px solid var(--bordo);
+  display: flex; gap: 10px; align-items: center;
+}
+.barra-ricerca input {
+  flex: 1; padding: 8px 12px; border: 1.5px solid var(--bordo);
+  border-radius: 8px; font-size: 13.5px; font-family: inherit;
+}
+.barra-ricerca input:focus { outline: none; border-color: var(--verde); }
+
+/* Card iscrizione */
+.isc-card {
+  background: white; border-radius: var(--radius); box-shadow: var(--ombra);
+  border: 1px solid var(--bordo); margin-bottom: 10px; overflow: hidden;
+  transition: box-shadow .2s;
+}
+.isc-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); }
+.isc-head {
+  padding: 14px 20px; display: flex; align-items: center;
+  justify-content: space-between; cursor: pointer; gap: 12px;
+}
+.isc-head:hover { background: #fafafa; }
+.isc-nome { font-size: 15px; font-weight: 700; }
+.isc-meta { font-size: 12px; color: var(--testo2); margin-top: 2px; }
+.isc-azioni { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 700; flex-shrink: 0; }
+.badge.server { background: var(--verde-light); color: var(--verde-dark); }
+.btn-sm {
+  padding: 5px 12px; border-radius: 6px; border: 1.5px solid var(--bordo);
+  background: white; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s;
+}
+.btn-sm:hover { border-color: var(--verde); color: var(--verde); }
+.btn-sm.r:hover { border-color: var(--rosso); color: var(--rosso); }
+.isc-det { display: none; padding: 16px 20px; border-top: 1px solid var(--bordo); background: #fafafa; }
+.isc-det.aperto { display: block; }
+.det-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; font-size: 13px; }
+.det-lbl { font-size: 10.5px; font-weight: 700; color: var(--testo2); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+.det-val { font-weight: 600; }
+
+/* Statistiche */
+.stats-bar {
+  background: linear-gradient(135deg, var(--verde-dark), var(--verde));
+  color: white; border-radius: var(--radius); padding: 16px 24px;
+  margin-bottom: 16px; display: flex; gap: 32px; align-items: center;
+}
+.stat-item .stat-n { font-size: 28px; font-weight: 800; line-height: 1; }
+.stat-item .stat-l { font-size: 12px; opacity: .8; margin-top: 2px; }
+
+/* ── OVERLAY LOGIN ADMIN ── */
+#overlay-login {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.55); backdrop-filter: blur(4px);
+  z-index: 300; align-items: center; justify-content: center;
+}
+#overlay-login.aperto { display: flex; }
+.login-box {
+  background: white; border-radius: 16px; padding: 32px 36px;
+  width: 360px; box-shadow: 0 12px 48px rgba(0,0,0,.2);
+  animation: slideUp .3s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.login-box h3 { font-size: 18px; margin-bottom: 6px; color: var(--verde-dark); }
+.login-box p  { font-size: 13px; color: var(--testo2); margin-bottom: 20px; }
+.login-box input {
+  width: 100%; padding: 11px 14px; border: 1.5px solid var(--bordo);
+  border-radius: 8px; font-size: 14px; margin-bottom: 14px; font-family: inherit;
+}
+.login-box input:focus { outline: none; border-color: var(--verde); }
+.login-box .btn-row { display: flex; gap: 10px; }
+.err-login { color: var(--rosso); font-size: 13px; margin-bottom: 10px; display: none; }
+
+/* ── SPINNER ── */
+.spinner {
+  display: inline-block; width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,.4); border-top-color: white;
+  border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle;
+}
+.spinner.scuro {
+  border-color: rgba(0,0,0,.15); border-top-color: var(--verde);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: #1a1a2e; color: white;
+  padding: 12px 20px; border-radius: 10px; font-size: 13.5px; font-weight: 600;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+  transform: translateY(80px); opacity: 0; transition: all .3s;
+  z-index: 9999; max-width: 360px; pointer-events: none;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast.verde { background: var(--verde-dark); }
+#toast.rosso { background: #dc2626; }
+
+/* ── EMPTY STATE ── */
+.empty { text-align: center; padding: 56px 24px; color: var(--testo2); }
+.empty .ico { font-size: 48px; margin-bottom: 12px; }
+
+/* ── PULSANTE GESTIONE FLOTTANTE ── */
+.btn-float {
+  position: fixed; bottom: 24px; left: 24px;
+  background: white; border: 1.5px solid var(--bordo);
+  border-radius: 50px; padding: 10px 18px;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  box-shadow: var(--ombra); z-index: 90;
+  display: flex; align-items: center; gap: 6px; transition: all .2s;
+}
+.btn-float:hover { border-color: var(--verde); color: var(--verde); box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 620px) {
+  .form-grid, .form-grid.col3 { grid-template-columns: 1fr; }
+  .delegato-row { grid-template-columns: 1fr; }
+  .det-grid { grid-template-columns: 1fr; }
+  .gestione-header { flex-direction: column; align-items: flex-start; }
+  .stats-bar { flex-wrap: wrap; gap: 16px; }
+}
+
+/* ══ STAMPA ══ */
+@media print {
+  html, body { height: auto !important; overflow: visible !important; background: white !important; }
+  .page-header, .nav-sezioni, .progress-wrap, .nav-bottom,
+  .btn-float, #overlay-login, #toast, #pagina-conferma,
+  #pagina-gestione, .btn-invia { display: none !important; }
+  .contenuto { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+  .pagina { display: block !important; }
+  canvas.firma { display: none !important; }
+  .firma-azioni { display: none !important; }
+  @page { margin: 1.5cm 2cm; size: A4 portrait; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="page-header">
+  <div>
+    <h1>🌈 L'Arcobaleno dei Bimbi</h1>
+    <small>Modulo di Iscrizione 2026/2027</small>
+  </div>
+  <div style="font-size:12px;opacity:.75">Acqui Terme (AL)</div>
+</div>
+
+<!-- ── NAV SEZIONI ── -->
+<div class="nav-sezioni" id="nav-sezioni">
+  <button class="nav-btn attivo" onclick="vaiA(0)">1. Iscrizione</button>
+  <button class="nav-btn" onclick="vaiA(1)">2. Scheda Medica</button>
+  <button class="nav-btn" onclick="vaiA(2)">3. Delega Ritiro</button>
+  <button class="nav-btn" onclick="vaiA(3)">4. Foto &amp; Video</button>
+  <button class="nav-btn" onclick="vaiA(4)">5. Consenso Dati</button>
+  <button class="nav-btn" onclick="vaiA(5)">6. Informativa</button>
+  <button class="nav-btn gestione" onclick="apriLogin()">⚙ Gestione</button>
+</div>
+
+<!-- ── PROGRESS ── -->
+<div class="progress-wrap" id="progress-wrap">
+  <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:16.6%"></div></div>
+  <div class="progress-label" id="progress-label">Sezione 1 di 6</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     FORM MULTI-STEP
+══════════════════════════════════════════════════ -->
+<div class="contenuto" id="contenuto-form">
+
+<!-- CONFERMA -->
+<div id="pagina-conferma">
+  <div class="icona-ok">✅</div>
+  <h2>Iscrizione inviata!</h2>
+  <p id="msg-conferma">Il modulo è stato salvato correttamente.</p>
+  <button class="btn btn-next" onclick="nuovoModulo()">Compila un altro modulo</button>
+</div>
+
+<!-- ─── SEZIONE 1 ─── -->
+<div class="pagina" id="pag-0">
+  <div class="card">
+    <div class="card-titolo">Dati del Padre</div>
+    <div class="form-grid">
+      <div class="campo"><label>Nome e cognome *</label><input id="p-nome" placeholder="Nome e cognome" /></div>
+      <div class="campo"><label>Nato a *</label><input id="p-natoa" placeholder="Città" /></div>
+      <div class="campo"><label>Provincia</label><input id="p-prov" placeholder="AL" maxlength="2" style="text-transform:uppercase" /></div>
+      <div class="campo"><label>Data di nascita *</label><input id="p-dnasc" type="date" /></div>
+      <div class="campo"><label>Comune di residenza *</label><input id="p-comune" placeholder="Comune" /></div>
+      <div class="campo"><label>CAP</label><input id="p-cap" placeholder="15011" maxlength="5" /></div>
+      <div class="campo"><label>Via / Corso *</label><input id="p-via" placeholder="Via" /></div>
+      <div class="campo"><label>N. civico</label><input id="p-civ" placeholder="22" /></div>
+      <div class="campo"><label>Codice Fiscale *</label><input id="p-cf" placeholder="XYZXYZ00X00X000X" style="text-transform:uppercase" maxlength="16" /></div>
+      <div class="campo"><label>Cellulare 1 *</label><input id="p-cell1" type="tel" placeholder="+39 347..." /></div>
+      <div class="campo"><label>Cellulare 2</label><input id="p-cell2" type="tel" placeholder="+39..." /></div>
+      <div class="campo"><label>Email</label><input id="p-email" type="email" placeholder="email@esempio.it" /></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-titolo">Dati della Madre</div>
+    <div class="form-grid">
+      <div class="campo"><label>Nome e cognome *</label><input id="m-nome" placeholder="Nome e cognome" /></div>
+      <div class="campo"><label>Nata a *</label><input id="m-natoa" placeholder="Città" /></div>
+      <div class="campo"><label>Provincia</label><input id="m-prov" placeholder="AL" maxlength="2" style="text-transform:uppercase" /></div>
+      <div class="campo"><label>Data di nascita *</label><input id="m-dnasc" type="date" /></div>
+      <div class="campo"><label>Comune di residenza *</label><input id="m-comune" placeholder="Comune" /></div>
+      <div class="campo"><label>CAP</label><input id="m-cap" placeholder="15011" maxlength="5" /></div>
+      <div class="campo"><label>Via / Corso *</label><input id="m-via" placeholder="Via" /></div>
+      <div class="campo"><label>N. civico</label><input id="m-civ" placeholder="22" /></div>
+      <div class="campo"><label>Codice Fiscale *</label><input id="m-cf" placeholder="XYZXYZ00X00X000X" style="text-transform:uppercase" maxlength="16" /></div>
+      <div class="campo"><label>Cellulare 1 *</label><input id="m-cell1" type="tel" placeholder="+39 347..." /></div>
+      <div class="campo"><label>Cellulare 2</label><input id="m-cell2" type="tel" placeholder="+39..." /></div>
+      <div class="campo"><label>Email</label><input id="m-email" type="email" placeholder="email@esempio.it" /></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-titolo">Dati del Minore</div>
+    <div class="form-grid">
+      <div class="campo"><label>Nome e cognome *</label><input id="b-nome" placeholder="Nome e cognome" /></div>
+      <div class="campo"><label>Nato/a a *</label><input id="b-natoa" placeholder="Città" /></div>
+      <div class="campo"><label>Provincia</label><input id="b-prov" placeholder="AL" maxlength="2" style="text-transform:uppercase" /></div>
+      <div class="campo"><label>Data di nascita *</label><input id="b-dnasc" type="date" /></div>
+      <div class="campo"><label>Comune di residenza</label><input id="b-comune" placeholder="Comune" /></div>
+      <div class="campo"><label>CAP</label><input id="b-cap" placeholder="15011" maxlength="5" /></div>
+      <div class="campo"><label>Via / Corso</label><input id="b-via" placeholder="Via" /></div>
+      <div class="campo"><label>N. civico</label><input id="b-civ" placeholder="22" /></div>
+      <div class="campo"><label>Codice Fiscale</label><input id="b-cf" placeholder="XYZXYZ00X00X000X" style="text-transform:uppercase" maxlength="16" /></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-titolo">Situazione Genitoriale</div>
+    <div class="opzioni-gruppo">
+      <label class="opzione"><input type="radio" name="sit" value="Coniugati" onchange="setSit(this)"> Coniugati</label>
+      <label class="opzione"><input type="radio" name="sit" value="Conviventi" onchange="setSit(this)"> Conviventi</label>
+      <label class="opzione"><input type="radio" name="sit" value="Mono genitore" onchange="setSit(this)"> Mono genitore (single, separato, vedovo…)</label>
+      <label class="opzione"><input type="radio" name="sit" value="Affidamento esclusivo" onchange="setSit(this)"> Affidamento esclusivo</label>
+    </div>
+    <div style="margin-top:16px">
+      <div class="card-titolo" style="margin-bottom:8px;font-size:13px;">Consenso comunicazioni attività</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <label class="opzione" style="flex:1"><input type="radio" name="cons" value="Acconsente" onchange="setCons(this)"> ✓ Acconsento</label>
+        <label class="opzione" style="flex:1"><input type="radio" name="cons" value="Non acconsente" onchange="setCons(this)"> ✗ Non acconsento</label>
+      </div>
+    </div>
+    <div class="campo" style="margin-top:14px;max-width:220px">
+      <label>Data compilazione</label>
+      <input type="date" id="data-isc" />
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-titolo">Firma Padre — Iscrizione</div>
+    <div class="firma-area">
+      <div class="firma-hint">Firma con il dito o il mouse</div>
+      <canvas class="firma" id="firma-isc-p" height="90"></canvas>
+      <div class="firma-azioni"><button class="btn-firma" onclick="clearFirma('firma-isc-p')">🗑 Cancella</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-titolo">Firma Madre — Iscrizione</div>
+    <div class="firma-area">
+      <div class="firma-hint">Firma con il dito o il mouse</div>
+      <canvas class="firma" id="firma-isc-m" height="90"></canvas>
+      <div class="firma-azioni"><button class="btn-firma" onclick="clearFirma('firma-isc-m')">🗑 Cancella</button></div>
+    </div>
+  </div>
+  <div class="nav-bottom"><span></span><button class="btn btn-next" onclick="avanti()">Avanti →</button></div>
+</div>
+
+<!-- ─── SEZIONE 2 ─── -->
+<div class="pagina" id="pag-1" style="display:none">
+  <div class="card">
+    <div class="card-titolo">Dati Genitore / Tutore</div>
+    <div class="form-grid">
+      <div class="campo"><label>Io sottoscritto/a *</label><input id="med-nome" placeholder="Nome e cognome" /></div>
+      <div class="campo"><label>Nato/a a</label><input id="med-natoa" placeholder="Città" /></div>
+      <div class="campo"><label>Provincia</label><input id="med-prov" placeholder="AL" maxlength="2" style="text-transform:uppercase" /></div>
+      <div class="campo"><label>Data di nascita</label><input id="med-dnasc" type="date" /></div>
+      <div class="campo"><label>Comune di residenza</label><input id="med-comune" placeholder="Comune" /></div>
+      <div class="campo"><label>CAP</label><input id="med-cap" placeholder="15011" maxlength="5" /></div>
+      <div class="campo"><label>Via / Corso</label><input id="med-via" placeholder="Via" /></div>
+      <div class="campo"><label>N. civico</label><input id="med-civ" placeholder="22" /></div>
+      <div class="campo"><label>Codice Fiscale</label><input id="med-cf" placeholder="XYZXYZ00X00X000X" style="text-transform:uppercase" maxlength="16" /></div>
+      <div class="campo"><label>Tutore del minore</label><input id="med-minore" placeholder="Nome del bambino/a" /></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-titolo">Informazioni Sanitarie</div>
+    <div class="opzioni-gruppo">
+      <label class="opzione"><input type="radio" name="allergie" value="non presenta" onchange="setAllergie(this)"> Il minore <strong>non presenta</strong> allergie/intolleranze</label>
+      <label class="opzione"><input type="radio" name="allergie" value="presenta" onchange="setAllergie(this)"> Il minore <strong>presenta</strong> allergie/intolleranze a:</label>
+    </div>
+    <div id="sezione-allergie" style="display:none;margin-top:12px">
+      <div class="form-grid col1">
+        <div class="campo"><label>Descrizione allergie/intolleranze</label><textarea id="med-allergie-desc" placeholder="Specificare..."></textarea></div>
+        <div class="campo"><label>Reazione</label><textarea id="med-reazione" placeholder="Descrivere la reazione..."></textarea></div>
+      </div>
+    </div>
+    <div class="campo" style="margin-top:14px">
+      <label>Precauzioni / cure</label>
+      <textarea id="med-cure" placeholder="Indicare eventuali cure o precauzioni..."></textarea>
+    </div>
+    <div style="margin-top:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--testo2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Vaccinazione antitetanica</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <label class="opzione" style="flex:1"><input type="radio" name="tetano" value="Sì" onchange="setTetano(this)"> Vaccinato/a</label>
+        <label class="opzione" style="flex:1"><input type="radio" name="tetano" value="No" onchange="setTetano(this)"> Non vaccinato/a ⚠️</label>
+      </div>
+    </div>
+    <div class="campo" style="margin-top:14px;max-width:220px">
+      <label>Data compilazione</label>
+      <input type="date" id="data-med" />
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-titolo">Firma Genitore — Scheda Medica</div>
+    <div class="firma-area">
+      <div class="firma-hint">Firma con il dito o il mouse</div>
+      <canvas class="firma" id="firma-med" height="90"></canvas>
+      <div class="firma-azioni"><button class="btn-firma" onclick="clearFirma('firma-med')">🗑 Cancella</button></div>
+    </div>
+  </div>
+  <div class="nav-bottom">
+    <button class="btn btn-prev" onclick="indietro()">← Indietro</button>
+    <button class="btn btn-next" onclick="avanti()">Avanti →</button>
+  </div>
+</div>
+
+<!-- ─── SEZIONE 3 ─── -->
+<div class="pagina" id="pag-2" style="display:none">
+  <div class="card">
+    <div class="card-titolo">Delega al Ritiro del Bambino</div>
+    <div class="form-grid">
+      <div class="campo"><label>Sottoscritta (madre/tutore)</label><input id="del-madre" placeholder="Nome e cognome" /></div>
+      <div class="campo"><label>Sottoscritto (padre/tutore)</label><input id="del-padre" placeholder="Nome e cognome" /></div>
+    </div>
+    <hr class="sep-h" style="margin:16px 0">
+    <div style="font-size:12px;font-weight:700;color:var(--testo2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">Persone delegate al ritiro</div>
+    <div id="delegati-container"></div>
+    <button class="btn-aggiungi" onclick="aggiungiDelegato()">+ Aggiungi persona</button>
+    <div class="campo" style="margin-top:14px;max-width:220px">
+      <label>Data compilazione</label>
+      <input type="date" id="data-del" />
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-titolo">Firma Padre — Delega</div>
+    <div class="firma-area">
+      <div class="firma-hint">Firma con il dito o il mouse</div>
+      <canvas class="firma" id="firma-del-p" height="90"></canvas>
+      <div class="firma-azioni"><button class="btn-firma" onclick="clearFirma('firma-del-p')">🗑 Cancella</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-titolo">Firma Madre — Delega</div>
+    <div class="firma-area">
+      <div class="firma-hint">Firma con il dito o il mouse</div>
+      <canvas class="firma" id="firma-del-m" height="90"></canvas>
+      <div class="firma-azioni"><button class="btn-firma" onclick="clearFirma('firma-del-m')">🗑 Cancella</button></div>
+    </div>
+  </div>
+  <div class="nav-bottom">
+    <button class="btn btn-prev" onclick="indietro()">← Indietro</button>
+    <button class="btn btn-next" onclick="avanti()">Avanti →</button>
+  </div>
+</div>
+
+<!-- ─── SEZIONE 4 ─── -->
+<div class="pagina" id="pag-3" style="display:none">
+  <div class="card">
+    <div class="card-titolo">Consenso per Foto e Video</div>
+    <div class="form-grid">
+      <div class="campo"><label>Sottoscritta (madre/tutore)</label><input id="fv-madre" placeholder="Nome e cognome" /></div>
+      <div class="campo"><label>Sottoscritto (padre/tutore)</label><input id="fv-padre" placeholder="Nome e cognome" /></div>
+    </div>
+    <div style="margin-top:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--testo2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Realizzazione foto/video a scopo didattico</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <label class="opzione" style="flex:1"><input type="radio" name="fv-real" value="Autorizziamo" onchange="setFV('real',this)"> ✓ Autorizziamo</label>
+        <label class="opzione" style="flex:1"><input type="radio" name="fv-real" value="Non autorizziamo" onchange="setFV('real',this)"> ✗ Non autorizziamo</label>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--testo2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Pubblicazione (recite, saggi, feste)</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <label class="opzione" style="flex:1"><input type="radio" name="fv-pub" value="Autorizziamo" onchange="setFV('pub',this)"> ✓ Autorizziamo</label>
+        <label class="opzione" style="flex:1"><input type="radio" name="fv-pub" value="Non autorizziamo" onchange="setFV('pub',this)"> ✗ Non autorizziamo</label>
+      </div>
+    </div>
+    <div class="campo" style="margin-top:14px;max-width:220px">
+      <label>Data compilazione</label>
+      <input type="date" id="data-fv" />
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-titolo">Firma Padre — Foto/Video</div>
+    <div class="firma-area">
+      <div class="firma-hint">Firma con il dito o il mouse</div>
+      <canvas class="firma" id="firma-fv-p" height="90"></canvas>
+      <div class="firma-azioni"><button class="btn-firma" onclick="clearFirma('firma-fv-p')">🗑 Cancella</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-titolo">Firma Madre — Foto/Video</div>
+    <div class="firma-area">
+      <div class="firma-hint">Firma con il dito o il mouse</div>
+      <canvas class="firma" id="firma-fv-m" height="90"></canvas>
+      <div class="firma-azioni"><button class="btn-firma" onclick="clearFirma('firma-fv-m')">🗑 Cancella</button></div>
+    </div>
+  </div>
+  <div class="nav-bottom">
+    <button class="btn btn-prev" onclick="indietro()">← Indietro</button>
+    <button class="btn btn-next" onclick="avanti()">Avanti →</button>
+  </div>
+</div>
+
+<!-- ─── SEZIONE 5 ─── -->
+<div class="pagina" id="pag-4" style="display:none">
+  <div class="card">
+    <div class="card-titolo">Dati Padre — Consenso Privacy</div>
+    <div class="form-grid">
+      <div class="campo"><label>Nome e cognome</label><input id="pp-nome" placeholder="Nome e cognome" /></div>
+      <div class="campo"><label>Nato a</label><input id="pp-natoa" placeholder="Città" /></div>
+      <div class="campo"><label>Provincia</label><input id="pp-prov" placeholder="AL" maxlength="2" style="text-transform:uppercase" /></div>
+      <div class="campo"><label>Data di nascita</label><input id="pp-dnasc" type="date" /></div>
+      <div class="campo"><label>Comune</label><input id="pp-comune" placeholder="Comune" /></div>
+      <div class="campo"><label>CAP</label><input id="pp-cap" placeholder="15011" maxlength="5" /></div>
+      <div class="campo"><label>Via</label><input id="pp-via" placeholder="Via" /></div>
+      <div class="campo"><label>N. civico</label><input id="pp-civ" placeholder="22" /></div>
+      <div class="campo"><label>Codice Fiscale</label><input id="pp-cf" placeholder="XYZXYZ00X00X000X" style="text-transform:uppercase" maxlength="16" /></div>
+      <div class="campo"><label>Cellulare</label><input id="pp-cell1" type="tel" placeholder="+39 347..." /></div>
+      <div class="campo"><label>Email</label><input id="pp-email" type="email" placeholder="email@esempio.it" /></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-titolo">Dati Madre — Consenso Privacy</div>
+    <div class="form-grid">
+      <div class="campo"><label>Nome e cognome</label><input id="pm-nome" placeholder="Nome e cognome" /></div>
+      <div class="campo"><label>Nata a</label><input id="pm-natoa" placeholder="Città" /></div>
+      <div class="campo"><label>Provincia</label><input id="pm-prov" placeholder="AL" maxlength="2" style="text-transform:uppercase" /></div>
+      <div class="campo"><label>Data di nascita</label><input id="pm-dnasc" type="date" /></div>
+      <div class="campo"><label>Comune</label><input id="pm-comune" placeholder="Comune" /></div>
+      <div class="campo"><label>CAP</label><input id="pm-cap" placeholder="15011" maxlength="5" /></div>
+      <div class="campo"><label>Via</label><input id="pm-via" placeholder="Via" /></div>
+      <div class="campo"><label>N. civico</label><input id="pm-civ" placeholder="22" /></div>
+      <div class="campo"><label>Codice Fiscale</label><input id="pm-cf" placeholder="XYZXYZ00X00X000X" style="text-transform:uppercase" maxlength="16" /></div>
+      <div class="campo"><label>Cellulare</label><input id="pm-cell1" type="tel" placeholder="+39 347..." /></div>
+      <div class="campo"><label>Email</label><input id="pm-email" type="email" placeholder="email@esempio.it" /></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-titolo">Firme — Consenso Privacy</div>
+    <div class="form-grid">
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px">Firma Padre</div>
+        <div class="firma-area">
+          <canvas class="firma" id="firma-priv-p" height="90"></canvas>
+          <div class="firma-azioni"><button class="btn-firma" onclick="clearFirma('firma-priv-p')">🗑 Cancella</button></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px">Firma Madre</div>
+        <div class="firma-area">
+          <canvas class="firma" id="firma-priv-m" height="90"></canvas>
+          <div class="firma-azioni"><button class="btn-firma" onclick="clearFirma('firma-priv-m')">🗑 Cancella</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="campo" style="margin-top:14px;max-width:220px">
+      <label>Data compilazione</label>
+      <input type="date" id="data-priv" />
+    </div>
+  </div>
+  <div class="nav-bottom">
+    <button class="btn btn-prev" onclick="indietro()">← Indietro</button>
+    <button class="btn btn-next" onclick="avanti()">Avanti →</button>
+  </div>
+</div>
+
+<!-- ─── SEZIONE 6 ─── -->
+<div class="pagina" id="pag-5" style="display:none">
+  <div class="card">
+    <div class="card-titolo">Informativa D.Lgs. 196/2003</div>
+    <div class="form-grid col1">
+      <div class="campo"><label>1. Finalità del trattamento</label><input id="ip-finalita" placeholder="Gestione iscrizioni e attività del baby parking" /></div>
+    </div>
+    <div style="margin:14px 0 8px;font-size:12px;font-weight:700;color:var(--testo2);text-transform:uppercase;letter-spacing:.04em">2. Modalità di trattamento</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <label class="opzione"><input type="checkbox" id="ip-manuale"> Manuale</label>
+      <label class="opzione"><input type="checkbox" id="ip-info"> Informatizzato</label>
+      <label class="opzione"><input type="checkbox" id="ip-altro"> Altro</label>
+    </div>
+    <div style="margin:14px 0 8px;font-size:12px;font-weight:700;color:var(--testo2);text-transform:uppercase;letter-spacing:.04em">3. Il conferimento dei dati è</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <label class="opzione" style="flex:1"><input type="radio" name="conf" value="Facoltativo" onchange="setConf(this)"> Facoltativo</label>
+      <label class="opzione" style="flex:1"><input type="radio" name="conf" value="Obbligatorio" onchange="setConf(this)"> Obbligatorio</label>
+    </div>
+    <div style="margin:14px 0 8px;font-size:12px;font-weight:700;color:var(--testo2);text-transform:uppercase;letter-spacing:.04em">Il rifiuto comporta</div>
+    <div class="opzioni-gruppo">
+      <label class="opzione"><input type="radio" name="rifiuto" value="Nessuna conseguenza" onchange="setRif(this)"> Nessuna conseguenza</label>
+      <label class="opzione"><input type="radio" name="rifiuto" value="Mancata/parziale esecuzione contratto" onchange="setRif(this)"> Mancata o parziale esecuzione del contratto</label>
+      <label class="opzione"><input type="radio" name="rifiuto" value="Mancata prosecuzione rapporto" onchange="setRif(this)"> Mancata prosecuzione del rapporto</label>
+    </div>
+    <div style="margin:14px 0 8px;font-size:12px;font-weight:700;color:var(--testo2);text-transform:uppercase;letter-spacing:.04em">4. Comunicazione dati a terzi</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <label class="opzione" style="flex:1"><input type="radio" name="com" value="Non comunicati" onchange="setCom(this)"> Non saranno comunicati</label>
+      <label class="opzione" style="flex:1"><input type="radio" name="com" value="Comunicati" onchange="setCom(this)"> Potranno essere comunicati a:</label>
+    </div>
+    <div id="sezione-com" style="display:none;margin-top:10px">
+      <div class="form-grid">
+        <div class="campo"><label>Comunicati a</label><input id="ip-coma" placeholder="Enti, soggetti..." /></div>
+        <div class="campo"><label>Diffusi presso</label><input id="ip-diff" placeholder="Ambito di diffusione..." /></div>
+      </div>
+    </div>
+    <div class="form-grid col1" style="margin-top:14px">
+      <div class="campo"><label>5. Titolare del trattamento</label><input id="ip-titolare" value="Baby Parking L'Arcobaleno dei Bimbi – Via Goito 22, 15011 Acqui Terme (AL)" /></div>
+      <div class="campo"><label>6. Responsabile del trattamento</label><input id="ip-resp" value="Es Salmany Ikram" /></div>
+    </div>
+  </div>
+
+  <div class="card" style="border:2px solid var(--verde)">
+    <div class="card-titolo">Invia il Modulo Completo</div>
+    <p style="font-size:13px;color:var(--testo2);margin-bottom:18px;line-height:1.6">
+      Verifica tutti i dati prima di procedere. Una volta inviato, il modulo sarà archiviato nel sistema e disponibile nell'area Gestione da qualsiasi dispositivo.
+    </p>
+    <div class="nav-bottom">
+      <button class="btn btn-prev" onclick="indietro()">← Indietro</button>
+      <button class="btn btn-invia" id="btn-invia" onclick="inviaModulo()">📤 Invia Iscrizione</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- fine contenuto-form -->
+
+<!-- ══════════════════════════════════════════════════
+     PAGINA GESTIONE
+══════════════════════════════════════════════════ -->
+<div id="pagina-gestione" class="contenuto">
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-item">
+      <div class="stat-n" id="stat-totale">—</div>
+      <div class="stat-l">Iscrizioni totali</div>
+    </div>
+    <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+      <div style="font-size:13px;font-weight:700">L'Arcobaleno dei Bimbi</div>
+      <div style="font-size:12px;opacity:.8">Anno 2026/2027</div>
+    </div>
+  </div>
+
+  <div class="gestione-header">
+    <div>
+      <h2>📋 Iscrizioni archiviate</h2>
+      <div class="sync-stato loading" id="sync-stato">Caricamento…</div>
+    </div>
+    <div class="gestione-tools">
+      <button class="btn-g verde" onclick="caricaIscrizioni()">🔄 Aggiorna</button>
+      <button class="btn-g" onclick="esportaCSV()">📥 Esporta CSV</button>
+      <button class="btn-g" onclick="tornaModulo()">✏ Nuovo modulo</button>
+      <button class="btn-g" onclick="logout()" style="color:var(--rosso)">🚪 Esci</button>
+    </div>
+  </div>
+
+  <div class="barra-ricerca">
+    <span style="font-size:16px">🔍</span>
+    <input type="text" id="input-ricerca" placeholder="Cerca per nome bambino, padre, madre o codice fiscale…" oninput="cercaIscrizioni(this.value)" />
+  </div>
+
+  <div id="lista-iscrizioni"></div>
+</div>
+
+<!-- ── OVERLAY LOGIN ── -->
+<div id="overlay-login">
+  <div class="login-box">
+    <h3>🔐 Accesso Gestione</h3>
+    <p>Inserisci la password per accedere all'area di gestione iscrizioni.</p>
+    <div class="err-login" id="err-login">Password errata</div>
+    <input type="password" id="input-pwd" placeholder="Password"
+           onkeydown="if(event.key==='Enter')verificaPwd()" autocomplete="current-password" />
+    <div class="btn-row">
+      <button class="btn btn-next" style="flex:1" onclick="verificaPwd()">Accedi</button>
+      <button class="btn btn-prev" onclick="chiudiLogin()">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PULSANTE GESTIONE FLOAT ── -->
+<button class="btn-float" onclick="apriLogin()">⚙ Gestione</button>
+
+<!-- ── TOAST ── -->
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════ -->
+<script>
+/* ─────────────────────────────────────────
+   CONFIGURAZIONE
+───────────────────────────────────────── */
+// L'URL del backend è relativo — funziona su qualsiasi host/porta
+const API = '';  // se il frontend è servito dallo stesso server Express
+
+/* ─────────────────────────────────────────
+   TOKEN DI SESSIONE ADMIN
+   Viene mantenuto in memoria (non localStorage)
+   per sicurezza: si azzera al refresh/chiusura tab
+───────────────────────────────────────── */
+let adminToken = null;
+
+/* ─────────────────────────────────────────
+   INIT
+───────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  const oggi = new Date().toISOString().split('T')[0];
+  ['data-isc','data-med','data-del','data-fv','data-priv'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = oggi;
+  });
+  inizFirme();
+  aggiungiDelegato();
+});
+
+/* ─────────────────────────────────────────
+   NAVIGAZIONE FORM
+───────────────────────────────────────── */
+let paginaCorrente = 0;
+const TOT = 6;
+
+function vaiA(n) {
+  document.getElementById(`pag-${paginaCorrente}`)?.style.setProperty('display','none');
+  paginaCorrente = n;
+  document.getElementById(`pag-${paginaCorrente}`)?.style.setProperty('display','block');
+  document.querySelectorAll('.nav-btn:not(.gestione)').forEach((b,i) => b.classList.toggle('attivo', i===n));
+  const pct = ((n+1)/TOT*100).toFixed(1);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Sezione ${n+1} di ${TOT}`;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function avanti()  { if (paginaCorrente < TOT-1) vaiA(paginaCorrente+1); }
+function indietro(){ if (paginaCorrente > 0) vaiA(paginaCorrente-1); }
+
+/* ─────────────────────────────────────────
+   STATO FORM
+───────────────────────────────────────── */
+const S = { sit:'', cons:'', allergie:'', fvReal:'', fvPub:'', conf:'', rif:'', com:'', tetano:'' };
+const selOp = (name, val) => document.querySelectorAll(`[name="${name}"]`).forEach(r => r.closest('.opzione')?.classList.toggle('selezionata', r.value===val));
+function setSit(el)    { S.sit     = el.value; selOp('sit', el.value); }
+function setCons(el)   { S.cons    = el.value; selOp('cons', el.value); }
+function setAllergie(el){ S.allergie = el.value; selOp('allergie', el.value); document.getElementById('sezione-allergie').style.display = el.value==='presenta'?'block':'none'; }
+function setFV(t,el)   { S['fv'+t.charAt(0).toUpperCase()+t.slice(1)] = el.value; selOp('fv-'+t, el.value); }
+function setConf(el)   { S.conf    = el.value; selOp('conf', el.value); }
+function setRif(el)    { S.rif     = el.value; selOp('rifiuto', el.value); }
+function setCom(el)    { S.com     = el.value; selOp('com', el.value); document.getElementById('sezione-com').style.display = el.value==='Comunicati'?'block':'none'; }
+function setTetano(el) { S.tetano  = el.value; selOp('tetano', el.value); }
+
+/* ─────────────────────────────────────────
+   DELEGATI
+───────────────────────────────────────── */
+let delegati = [];
+function aggiungiDelegato() {
+  const id = Date.now();
+  delegati.push({ id, nome:'', doc:'', rel:'' });
+  renderDelegati();
+}
+function rimuoviDelegato(id) {
+  delegati = delegati.filter(d => d.id !== id);
+  renderDelegati();
+}
+function renderDelegati() {
+  document.getElementById('delegati-container').innerHTML = delegati.map(d => `
+    <div class="delegato-row">
+      <div class="campo"><label>Nome e cognome</label>
+        <input placeholder="Nome e cognome" value="${d.nome}" oninput="delegati.find(x=>x.id===${d.id}).nome=this.value" />
+      </div>
+      <div class="campo"><label>N. documento</label>
+        <input placeholder="CI AB123456" value="${d.doc}" oninput="delegati.find(x=>x.id===${d.id}).doc=this.value" />
+      </div>
+      <div class="campo"><label>Relazione</label>
+        <input placeholder="Nonna, Zio…" value="${d.rel}" oninput="delegati.find(x=>x.id===${d.id}).rel=this.value" />
+      </div>
+      <button class="btn-rimuovi" onclick="rimuoviDelegato(${d.id})" title="Rimuovi">✕</button>
+    </div>`).join('');
+}
+
+/* ─────────────────────────────────────────
+   FIRME CANVAS
+───────────────────────────────────────── */
+function inizFirme() {
+  document.querySelectorAll('canvas.firma').forEach(cv => {
+    cv.width = cv.offsetWidth || 500;
+    let drawing = false;
+    const ctx = cv.getContext('2d');
+    ctx.strokeStyle = '#1a1a2e'; ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    const pos = e => {
+      const r = cv.getBoundingClientRect();
+      const t = e.touches ? e.touches[0] : e;
+      return [(t.clientX-r.left)*(cv.width/r.width), (t.clientY-r.top)*(cv.height/r.height)];
+    };
+    cv.addEventListener('mousedown',  e => { drawing=true; ctx.beginPath(); ctx.moveTo(...pos(e)); });
+    cv.addEventListener('mousemove',  e => { if(!drawing) return; ctx.lineTo(...pos(e)); ctx.stroke(); });
+    cv.addEventListener('mouseup',    () => drawing=false);
+    cv.addEventListener('mouseleave', () => drawing=false);
+    cv.addEventListener('touchstart', e => { e.preventDefault(); drawing=true; ctx.beginPath(); ctx.moveTo(...pos(e)); }, {passive:false});
+    cv.addEventListener('touchmove',  e => { e.preventDefault(); if(!drawing) return; ctx.lineTo(...pos(e)); ctx.stroke(); }, {passive:false});
+    cv.addEventListener('touchend',   () => drawing=false);
+  });
+}
+function clearFirma(id) {
+  const cv = document.getElementById(id);
+  cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+}
+function getFirma(id) {
+  const cv = document.getElementById(id);
+  if (!cv) return '';
+  const data = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data;
+  return data.some((v,i) => i%4===3 && v>0) ? cv.toDataURL('image/png') : '';
+}
+
+/* ─────────────────────────────────────────
+   RACCOLTA DATI
+───────────────────────────────────────── */
+const v = id => (document.getElementById(id)?.value || '').trim();
+const ch = id => document.getElementById(id)?.checked || false;
+
+function raccogliDati() {
+  return {
+    id: 'isc_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    timestamp: new Date().toLocaleString('it-IT'),
+    data_isc: v('data-isc'), data_med: v('data-med'),
+    data_del: v('data-del'), data_fv:  v('data-fv'),  data_priv: v('data-priv'),
+    padre:  { nome:v('p-nome'), natoa:v('p-natoa'), prov:v('p-prov'), dnasc:v('p-dnasc'), comune:v('p-comune'), cap:v('p-cap'), via:v('p-via'), civ:v('p-civ'), cf:v('p-cf'), cell1:v('p-cell1'), cell2:v('p-cell2'), email:v('p-email') },
+    madre:  { nome:v('m-nome'), natoa:v('m-natoa'), prov:v('m-prov'), dnasc:v('m-dnasc'), comune:v('m-comune'), cap:v('m-cap'), via:v('m-via'), civ:v('m-civ'), cf:v('m-cf'), cell1:v('m-cell1'), cell2:v('m-cell2'), email:v('m-email') },
+    bambino:{ nome:v('b-nome'), natoa:v('b-natoa'), prov:v('b-prov'), dnasc:v('b-dnasc'), comune:v('b-comune'), cap:v('b-cap'), via:v('b-via'), civ:v('b-civ'), cf:v('b-cf') },
+    situazione: S.sit, consenso_att: S.cons,
+    medico: { nome:v('med-nome'), natoa:v('med-natoa'), prov:v('med-prov'), dnasc:v('med-dnasc'), comune:v('med-comune'), cap:v('med-cap'), via:v('med-via'), civ:v('med-civ'), cf:v('med-cf'), minore:v('med-minore'), allergie:S.allergie, desc_allergie:v('med-allergie-desc'), reazione:v('med-reazione'), cure:v('med-cure'), tetano:S.tetano },
+    delega: { madre:v('del-madre'), padre:v('del-padre'), persone: delegati.map(d=>({nome:d.nome,doc:d.doc,rel:d.rel})).filter(d=>d.nome) },
+    fv: { madre:v('fv-madre'), padre:v('fv-padre'), realizzazione:S.fvReal, pubblicazione:S.fvPub },
+    privacy_padre: { nome:v('pp-nome'), natoa:v('pp-natoa'), prov:v('pp-prov'), dnasc:v('pp-dnasc'), comune:v('pp-comune'), cap:v('pp-cap'), via:v('pp-via'), civ:v('pp-civ'), cf:v('pp-cf'), cell1:v('pp-cell1'), email:v('pp-email') },
+    privacy_madre: { nome:v('pm-nome'), natoa:v('pm-natoa'), prov:v('pm-prov'), dnasc:v('pm-dnasc'), comune:v('pm-comune'), cap:v('pm-cap'), via:v('pm-via'), civ:v('pm-civ'), cf:v('pm-cf'), cell1:v('pm-cell1'), email:v('pm-email') },
+    info_priv: { finalita:v('ip-finalita'), mod_manuale:ch('ip-manuale')?'Sì':'No', mod_info:ch('ip-info')?'Sì':'No', mod_altro:ch('ip-altro')?'Sì':'No', conferimento:S.conf, rifiuto:S.rif, comunicazione:S.com, com_a:v('ip-coma'), diffuso:v('ip-diff'), titolare:v('ip-titolare'), responsabile:v('ip-resp') },
+    firma_isc_p: getFirma('firma-isc-p'), firma_isc_m: getFirma('firma-isc-m'),
+    firma_med:   getFirma('firma-med'),
+    firma_del_p: getFirma('firma-del-p'), firma_del_m: getFirma('firma-del-m'),
+    firma_fv_p:  getFirma('firma-fv-p'),  firma_fv_m:  getFirma('firma-fv-m'),
+    firma_priv_p:getFirma('firma-priv-p'),firma_priv_m:getFirma('firma-priv-m'),
+  };
+}
+
+/* ─────────────────────────────────────────
+   INVIO → BACKEND
+───────────────────────────────────────── */
+async function inviaModulo() {
+  if (!v('b-nome')) { toast('Inserisci il nome del bambino/a', 'rosso'); return; }
+  if (!v('p-nome') && !v('m-nome')) { toast('Inserisci almeno i dati di un genitore', 'rosso'); return; }
+
+  const btn = document.getElementById('btn-invia');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Invio in corso…';
+
+  const dati = raccogliDati();
+
+  try {
+    const res = await fetch(`${API}/api/iscrizioni`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dati),
+    });
+    const json = await res.json();
+
+    if (!json.ok) throw new Error(json.errore || 'Errore server');
+
+    // Mostra conferma
+    document.getElementById('contenuto-form').style.display = 'none';
+    document.getElementById('pagina-conferma').style.display = 'block';
+    document.getElementById('msg-conferma').innerHTML =
+      `L'iscrizione di <strong>${dati.bambino.nome}</strong> è stata salvata nel sistema.<br>
+       È disponibile nell'area Gestione da qualsiasi dispositivo connesso alla rete dell'asilo.`;
+
+  } catch (err) {
+    toast('Errore durante l\'invio: ' + err.message, 'rosso');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '📤 Invia Iscrizione';
+  }
+}
+
+function nuovoModulo() { location.reload(); }
+
+/* ─────────────────────────────────────────
+   LOGIN ADMIN
+───────────────────────────────────────── */
+function apriLogin() {
+  if (adminToken) { apriGestione(); return; }
+  document.getElementById('overlay-login').classList.add('aperto');
+  document.getElementById('err-login').style.display = 'none';
+  setTimeout(() => document.getElementById('input-pwd').focus(), 100);
+}
+function chiudiLogin() {
+  document.getElementById('overlay-login').classList.remove('aperto');
+  document.getElementById('input-pwd').value = '';
+}
+
+async function verificaPwd() {
+  const pwd = document.getElementById('input-pwd').value;
+  const errEl = document.getElementById('err-login');
+  errEl.style.display = 'none';
+
+  try {
+    const res  = await fetch(`${API}/api/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pwd }),
+    });
+    const json = await res.json();
+
+    if (!json.ok) {
+      errEl.style.display = 'block';
+      document.getElementById('input-pwd').value = '';
+      document.getElementById('input-pwd').focus();
+      return;
+    }
+
+    adminToken = json.token;
+    chiudiLogin();
+    apriGestione();
+
+  } catch {
+    errEl.textContent = 'Errore di connessione al server';
+    errEl.style.display = 'block';
+  }
+}
+
+async function logout() {
+  if (adminToken) {
+    await fetch(`${API}/api/admin/logout`, {
+      method: 'POST',
+      headers: { 'x-admin-token': adminToken },
+    }).catch(() => {});
+    adminToken = null;
+  }
+  tornaModulo();
+}
+
+/* ─────────────────────────────────────────
+   GESTIONE ISCRIZIONI
+───────────────────────────────────────── */
+function apriGestione() {
+  document.getElementById('contenuto-form').style.display = 'none';
+  document.getElementById('pagina-conferma').style.display = 'none';
+  document.getElementById('pagina-gestione').style.display = 'block';
+  document.getElementById('progress-wrap').style.display = 'none';
+  caricaIscrizioni();
+}
+
+function tornaModulo() {
+  document.getElementById('pagina-gestione').style.display = 'none';
+  document.getElementById('contenuto-form').style.display = 'block';
+  document.getElementById('progress-wrap').style.display = 'block';
+  document.getElementById('pagina-conferma').style.display = 'none';
+}
+
+let tutteIscrizioni = [];
+
+async function caricaIscrizioni(q = '') {
+  if (!adminToken) return;
+  const stato = document.getElementById('sync-stato');
+  stato.textContent = 'Caricamento…'; stato.className = 'sync-stato loading';
+
+  try {
+    const url = `${API}/api/admin/iscrizioni${q ? '?q='+encodeURIComponent(q) : ''}`;
+    const res  = await fetch(url, { headers: { 'x-admin-token': adminToken } });
+
+    if (res.status === 401) { adminToken = null; tornaModulo(); apriLogin(); return; }
+
+    const json = await res.json();
+    tutteIscrizioni = json.data || [];
+
+    stato.textContent = `✓ ${tutteIscrizioni.length} iscrizioni caricate dal server`;
+    stato.className = 'sync-stato ok';
+
+    document.getElementById('stat-totale').textContent = json.totale ?? tutteIscrizioni.length;
+    renderIscrizioni(tutteIscrizioni);
+
+  } catch (err) {
+    stato.textContent = '⚠ Impossibile raggiungere il server';
+    stato.className = 'sync-stato err';
+    document.getElementById('lista-iscrizioni').innerHTML =
+      '<div class="empty"><div class="ico">⚠️</div><p>Impossibile connettersi al server.<br>Verifica che il backend sia avviato.</p></div>';
+  }
+}
+
+let cercaTimeout;
+function cercaIscrizioni(q) {
+  clearTimeout(cercaTimeout);
+  cercaTimeout = setTimeout(() => caricaIscrizioni(q), 380);
+}
+
+function renderIscrizioni(list) {
+  const c = document.getElementById('lista-iscrizioni');
+  if (!list.length) {
+    c.innerHTML = '<div class="empty"><div class="ico">📭</div><p>Nessuna iscrizione presente.</p></div>';
+    return;
+  }
+  c.innerHTML = list.map((m, i) => `
+    <div class="isc-card">
+      <div class="isc-head" onclick="toggleDet('det-${i}')">
+        <div>
+          <div class="isc-nome">👶 ${m.bambino?.nome || '—'}</div>
+          <div class="isc-meta">${m._timestamp || m.timestamp || ''} &nbsp;·&nbsp; Padre: ${m.padre?.nome||'—'} &nbsp;·&nbsp; Madre: ${m.madre?.nome||'—'}</div>
+        </div>
+        <div class="isc-azioni">
+          <span class="badge server">✓ Server</span>
+          <button class="btn-sm" onclick="event.stopPropagation();stampaIscrizione('${m._id||m.id}')">🖨 Stampa</button>
+          <button class="btn-sm r" onclick="event.stopPropagation();eliminaIscrizione('${m._id||m.id}')">🗑</button>
+        </div>
+      </div>
+      <div class="isc-det" id="det-${i}">
+        <div class="det-grid">
+          <div><div class="det-lbl">Bambino/a</div><div class="det-val">${m.bambino?.nome||'—'}</div></div>
+          <div><div class="det-lbl">Nato/a il</div><div class="det-val">${m.bambino?.dnasc||'—'}</div></div>
+          <div><div class="det-lbl">Padre</div><div class="det-val">${m.padre?.nome||'—'}</div></div>
+          <div><div class="det-lbl">Madre</div><div class="det-val">${m.madre?.nome||'—'}</div></div>
+          <div><div class="det-lbl">Situazione</div><div class="det-val">${m.situazione||'—'}</div></div>
+          <div><div class="det-lbl">Allergie</div><div class="det-val">${m.medico?.allergie||'—'}</div></div>
+          <div><div class="det-lbl">Tetano</div><div class="det-val">${m.medico?.tetano||'—'}</div></div>
+          <div><div class="det-lbl">Foto/Video</div><div class="det-val">${m.fv?.realizzazione||'—'}</div></div>
+          <div><div class="det-lbl">Delegati al ritiro</div><div class="det-val">${(m.delega?.persone||[]).map(p=>p.nome).filter(Boolean).join(', ')||'—'}</div></div>
+          <div><div class="det-lbl">ID</div><div class="det-val" style="font-size:10px;font-family:monospace">${m._id||m.id||'—'}</div></div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleDet(id) { document.getElementById(id)?.classList.toggle('aperto'); }
+
+async function stampaIscrizione(id) {
+  if (!adminToken) return;
+  toast('Caricamento modulo…');
+  try {
+    const res  = await fetch(`${API}/api/admin/iscrizioni/${id}`, { headers: { 'x-admin-token': adminToken } });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.errore);
+    printModulo(json.data);
+  } catch (err) {
+    toast('Errore caricamento: ' + err.message, 'rosso');
+  }
+}
+
+async function eliminaIscrizione(id) {
+  if (!confirm('Eliminare questa iscrizione? L\'operazione è reversibile solo accedendo direttamente al database.')) return;
+  try {
+    const res  = await fetch(`${API}/api/admin/iscrizioni/${id}`, {
+      method: 'DELETE',
+      headers: { 'x-admin-token': adminToken },
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.errore);
+    toast('Iscrizione eliminata', 'verde');
+    caricaIscrizioni(document.getElementById('input-ricerca').value);
+  } catch (err) {
+    toast('Errore: ' + err.message, 'rosso');
+  }
+}
+
+async function esportaCSV() {
+  if (!adminToken) return;
+  window.open(`${API}/api/admin/export/csv`, '_blank');
+}
+
+/* ─────────────────────────────────────────
+   STAMPA FEDELE AL PDF
+───────────────────────────────────────── */
+const LOGO = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="14" fill="#e8f5ff"/><path d="M10 68 Q50 10 90 68" fill="none" stroke="#e74c3c" stroke-width="7" stroke-linecap="round"/><path d="M16 68 Q50 18 84 68" fill="none" stroke="#e67e22" stroke-width="6" stroke-linecap="round"/><path d="M22 68 Q50 26 78 68" fill="none" stroke="#f1c40f" stroke-width="6" stroke-linecap="round"/><path d="M28 68 Q50 34 72 68" fill="none" stroke="#2ecc71" stroke-width="5" stroke-linecap="round"/><path d="M34 68 Q50 42 66 68" fill="none" stroke="#3498db" stroke-width="5" stroke-linecap="round"/><ellipse cx="20" cy="30" rx="10" ry="7" fill="white"/><ellipse cx="30" cy="25" rx="8" ry="6" fill="white"/><circle cx="78" cy="22" r="9" fill="#f9ca24"/><circle cx="38" cy="80" r="5" fill="#f39c12"/><rect x="35" y="85" width="6" height="9" rx="2" fill="#3498db"/><circle cx="52" cy="78" r="5" fill="#e91e63"/><rect x="49" y="83" width="6" height="10" rx="2" fill="#9c27b0"/><circle cx="66" cy="80" r="5" fill="#795548"/><rect x="63" y="85" width="6" height="9" rx="2" fill="#4caf50"/></svg>`;
+
+function printModulo(m) {
+  const CSS = `
+    @page{size:A4 portrait;margin:1.8cm 2.2cm}
+    html,body{height:auto!important;overflow:visible!important;margin:0;padding:0}
+    *{box-sizing:border-box}
+    body{font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:1.55;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .int{display:flex;align-items:flex-start;gap:14px;border-bottom:1px solid #000;padding-bottom:8px;margin-bottom:16px}
+    .int svg{width:68px;height:68px;flex-shrink:0}
+    .int-t{font-size:9pt;line-height:1.7}
+    .int-t strong{font-size:10pt;display:block}
+    .tit{text-align:center;font-size:14pt;font-weight:bold;letter-spacing:.05em;text-decoration:underline;margin:20px 0 4px}
+    .ann{text-align:center;font-size:11pt;font-style:italic;margin-bottom:20px}
+    .sez{margin-bottom:0}
+    .sez.np{page-break-before:always;break-before:page}
+    .blbl{font-size:10pt;font-weight:bold;margin:10px 0 6px}
+    .rg{display:flex;align-items:baseline;margin-bottom:5px}
+    .rl{font-size:10pt;white-space:nowrap;flex-shrink:0;margin-right:3px}
+    .rv{flex:1;font-size:10pt;border-bottom:1px solid #555;min-width:60px;padding:0 4px 1px}
+    .rv.e{border-bottom:1px dotted #aaa}
+    .rs{flex-shrink:0;margin:0 3px;font-size:10pt}
+    .tx{font-size:10pt;text-align:justify;margin:12px 0;line-height:1.6}
+    .dc{text-align:center;font-size:12pt;font-weight:bold;font-style:italic;letter-spacing:.25em;margin:16px 0 12px}
+    .pt{margin-bottom:8px;font-size:10.5pt}
+    .op{display:flex;align-items:baseline;gap:8px;margin-bottom:5px;font-size:10.5pt}
+    table.d{width:100%;border-collapse:collapse;font-size:10pt;margin:8px 0}
+    table.d th{border:1px solid #000;padding:5px 8px;font-weight:bold;text-align:left;background:#eee;-webkit-print-color-adjust:exact}
+    table.d td{border:1px solid #000;padding:5px 8px}
+    .fb{margin-top:24px;page-break-inside:avoid}
+    .fr{display:flex;gap:40px;margin-top:8px}
+    .fi{flex:1}.fiu{max-width:52%}
+    .fl-l{font-size:10.5pt;font-style:italic;font-weight:bold;margin-bottom:2px}
+    .fl{border-bottom:1px solid #555;height:38px;position:relative}
+    .fg{max-height:34px;max-width:100%;object-fit:contain;position:absolute;bottom:2px;left:4px}
+    .dr{font-style:italic;font-size:10.5pt}
+    @media print{html,body{height:auto!important;overflow:visible!important}.sez.np{page-break-before:always;break-before:page}}
+  `;
+
+  const e  = (l,v,e)=>{const vv=v&&String(v).trim()&&v!=='—'?v:'';return`<div class="rg"><span class="rl">${l}</span><span class="rv${vv?'':' e'}">${vv||'&nbsp;'.repeat(40)}</span>${e||''}</div>`;};
+  const rn = (l,na,pv,dn)=>{const a=na||'',p=pv?`(${pv})`:'',d=dn||'';return`<div class="rg"><span class="rl">${l}</span><span class="rv${a?'':' e'}">${a||'&nbsp;'.repeat(22)}</span><span class="rs">&nbsp;(</span><span class="rv${p?'':' e'}" style="max-width:32px">${p||'&nbsp;&nbsp;&nbsp;'}</span><span class="rs">)&nbsp;il</span><span class="rv${d?'':' e'}" style="max-width:110px">${d||'&nbsp;'.repeat(14)}</span></div>`;};
+  const rr = (c,k)=>`<div class="rg"><span class="rl">con residenza nel comune di</span><span class="rv${c?'':' e'}">${c||'&nbsp;'.repeat(26)}</span><span class="rs">CAP</span><span class="rv${k?'':' e'}" style="max-width:68px">${k||'&nbsp;'.repeat(8)}</span></div>`;
+  const rv = (vi,ci)=>`<div class="rg"><span class="rl">via</span><span class="rv${vi?'':' e'}">${vi||'&nbsp;'.repeat(40)}</span><span class="rs">n.</span><span class="rv${ci?'':' e'}" style="max-width:56px">${ci||'&nbsp;'.repeat(6)}</span></div>`;
+  const rc = (c1,c2)=>`<div class="rg"><span class="rl">Recapiti Cell 1</span><span class="rv${c1?'':' e'}">${c1||'&nbsp;'.repeat(18)}</span><span class="rs">cell 2</span><span class="rv${c2?'':' e'}">${c2||'&nbsp;'.repeat(18)}</span></div>`;
+  const cb = (s,t)=>`<div class="op"><span style="font-size:12pt;font-weight:bold;flex-shrink:0">${s?'●':'O'}</span><span>${t}</span></div>`;
+  const fi = (src,l)=>`<div class="fi"><div class="fl-l">${l}</div><div class="fl">${src&&src.length>200?`<img src="${src}" class="fg">`:'&nbsp;'}</div></div>`;
+  const fiu= (src,l)=>`<div class="fiu"><div class="fl-l">${l}</div><div class="fl">${src&&src.length>200?`<img src="${src}" class="fg">`:'&nbsp;'}</div></div>`;
+  const dr = d=>`<div class="dr"><em>Acqui Terme, lì ${d&&d.trim()?d:'______________________'}</em></div>`;
+  const INT= `<div class="int">${LOGO}<div class="int-t"><strong>Baby Parking " L'Arcobaleno dei Bimbi " – Via Goito, 22 – 15011 Acqui Terme ( AL )</strong>Cell: 347.85.77.866 &nbsp; web: www.larcobalenodeibimbi.it &nbsp; mail: larcobalenodeibimbi.a.t.@gmail.com</div></div>`;
+  const BG = (lbl,g)=>`<div class="blbl">[${lbl}]</div>${e('Io sottoscritto',g?.nome)}${rn('nato a',g?.natoa,g?.prov,g?.dnasc)}${rr(g?.comune,g?.cap)}${rv(g?.via,g?.civ)}${e('C.F.',g?.cf)}${rc(g?.cell1,g?.cell2)}${e('Email',g?.email)}`;
+
+  const allSel = m.medico?.allergie==='presenta';
+  const dR = (m.delega?.persone||[]).filter(p=>p.nome).map(p=>`<tr><td>${p.nome}</td><td>${p.doc||'&nbsp;'}</td><td>${p.rel||'&nbsp;'}</td></tr>`).join('') || '<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>'.repeat(3);
+
+  const H = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Iscrizione – ${m.bambino?.nome||'Arcobaleno'}</title><style>${CSS}</style></head><body>
+<div class="sez">${INT}<div class="tit">MODULO DI ISCRIZIONE</div><div class="ann">- ANNO 2026/2027 -</div>
+${BG('DATI PADRE',m.padre)}<br>${BG('DATI MADRE',m.madre)}
+<div class="tx">consapevoli delle responsabilità e delle sanzioni penali previste dall'art. 76 del DPR 445/2000 per attestazioni e dichiarazioni false e sotto la nostra personale responsabilità</div>
+<div class="dc">D I C H I A R I A M O</div>
+<div class="pt"><strong>A)</strong> Di essere genitori del minore: ${e('',m.bambino?.nome)}${rn('nato a',m.bambino?.natoa,m.bambino?.prov,m.bambino?.dnasc)}${rr(m.bambino?.comune,m.bambino?.cap)}${rv(m.bambino?.via,m.bambino?.civ)}${e('C.F.',m.bambino?.cf)}</div>
+<div class="pt"><strong>B)</strong> Situazione genitoriale: ${cb(m.situazione==='Coniugati','Coniugati')}${cb(m.situazione==='Conviventi','Conviventi')}${cb(m.situazione==='Mono genitore','mono genitore (single, separato, vedovo…)')}${cb(m.situazione==='Affidamento esclusivo','Affidamento esclusivo')}</div>
+<div class="pt"><strong>C)</strong> Di aver compilato con attenzione e dettagliatamente tutte le parti del modulo</div>
+<div class="pt"><strong>D)</strong> Di accettare integralmente il regolamento del baby parking</div>
+<div class="dc">A U T O R I Z Z I A M O</div>
+<div class="tx">nostro/a figlio/a a partecipare a tutte le attività organizzate da "L'Arcobaleno dei Bimbi" di Es Salmany Ikram – Via Al Castello c.n. 2, Acqui Terme (AL) 15011</div>
+<div class="dc">A U T O R I Z Z I A M O</div>
+<div class="tx">gli operatori ad accompagnare, in caso di necessità ed urgenza, mio/a figlio/a tutelato presso il presidio di primo soccorso più vicino anche nel caso in cui non riescano a contattarmi. Ai sensi del D. Lgs. 196/03, dichiariamo di:</div>
+${cb(m.consenso_att&&!m.consenso_att.includes('Non'),'ACCONSENTIRE')}${cb(m.consenso_att&&m.consenso_att.includes('Non'),'NON ACCONSENTIRE')}
+<div class="tx">alle comunicazioni delle attività e al trattamento dei dati personali per scopi istituzionali e per comunicazioni via e-mail e social networks.</div>
+<div class="fb">${dr(m.data_isc)}<div class="fr">${fi(m.firma_isc_p,'Firma padre:')}${fi(m.firma_isc_m,'Firma madre')}</div></div>
+</div>
+
+<div class="sez np">${INT}<div class="tit">SCHEDA MEDICA BAMBINO</div>
+${e('Io sottoscritto',m.medico?.nome)}${rn('nato a',m.medico?.natoa,m.medico?.prov,m.medico?.dnasc)}${rr(m.medico?.comune,m.medico?.cap)}${rv(m.medico?.via,m.medico?.civ)}${e('C.F.',m.medico?.cf)}${e('In qualità di genitore/tutore del minore',m.medico?.minore)}
+<div class="dc">D I C H I A R O</div>
+${cb(allSel,'Che il minore presenta allergie/intolleranze a:')}
+<div style="margin-left:22px">${allSel&&m.medico?.desc_allergie?e('',m.medico.desc_allergie):e('','')+e('','')+e('','')}</div>
+${cb(allSel,'Che il minore ha la seguente reazione')}
+<div style="margin-left:22px">${allSel&&m.medico?.reazione?e('',m.medico.reazione):e('','')+e('','')}</div>
+<br>${cb(!allSel,'<u>Che il minore non presenta allergie/intolleranze</u>')}<br>
+${cb(false,'Che il minore ha bisogno delle seguenti precauzioni/cure:')}
+<div style="margin-left:22px">${m.medico?.cure?e('',m.medico.cure):e('','')+e('','')+e('','')}</div>
+<div class="tx">[evidenziare l'eventuale mancanza di vaccinazione antitetanica così da poter permettere al personale di procedere secondo protocollo]</div>
+<div class="fb">${dr(m.data_med)}<div class="fr">${fiu(m.firma_med,'Firma del genitore:')}</div></div>
+</div>
+
+<div class="sez np">${INT}<div class="tit">DELEGA AL RITIRO DEL BAMBINO</div>
+${e('Io sottoscritto/a',m.delega?.madre)} <span style="font-size:9.5pt">in qualità di madre/tutore del minore</span><br>
+${e('Io sottoscritto',m.delega?.padre)} <span style="font-size:9.5pt">in qualità di padre/tutore del minore</span>
+<div class="dc">D E L E G H I A M O</div>
+<div class="tx">Al ritiro dalla struttura del minore sopra citato le seguenti persone:</div>
+<table class="d"><thead><tr><th>NOME E COGNOME</th><th>N. DOC. IDENTITA'</th><th>RELAZIONE CON IL MINORE</th></tr></thead><tbody>${dR}</tbody></table>
+<div class="dc" style="margin-top:18px">D I C H I A R I A M O</div>
+<div class="pt">• Di sollevare la struttura da qualsiasi responsabilità conseguente;</div>
+<div class="pt">• Di prendere atto che la responsabilità della struttura cessa nel momento in cui il minore viene affidato alla persona delegata</div>
+<div class="tx"><strong>N.B.</strong> Ai sensi dell'art. 591 del Codice Penale, al ritiro non può essere delegata persona minore di 18 anni.</div>
+<div class="fb">${dr(m.data_del)}<div class="fr">${fi(m.firma_del_p,'Firma padre:')}${fi(m.firma_del_m,'Firma madre')}</div></div>
+</div>
+
+<div class="sez np">${INT}<div class="tit">CONSENSO PER FOTO E VIDEO</div>
+${e('Io sottoscritto/a',m.fv?.madre)} <span style="font-size:9.5pt">in qualità di madre/tutore del minore</span><br>
+${e('Io sottoscritto',m.fv?.padre)} <span style="font-size:9.5pt">in qualità di padre/tutore del minore</span>
+<div style="height:16px"></div>
+<div class="op"><span style="font-size:12pt;font-weight:bold;flex-shrink:0">${m.fv?.realizzazione&&!m.fv.realizzazione.includes('Non')?'●':'O'}</span><span style="font-weight:bold;text-decoration:underline">A U T O R I Z Z I A M O</span></div>
+<div class="tx" style="margin-left:22px">Le educatrici di "L'Arcobaleno dei Bimbi" di Es Salmany Ikram a realizzare fotografie, video o altri materiali audiovisivi contenenti l'immagine, il nome e la voce del proprio/a figlio/a, all'interno di attività educative e didattiche nel corso dell'anno, esclusivamente per motivi didattici.</div>
+<div style="height:10px"></div>
+<div class="op"><span style="font-size:12pt;font-weight:bold;flex-shrink:0">${m.fv?.realizzazione&&m.fv.realizzazione.includes('Non')?'●':'O'}</span><span style="font-weight:bold;text-decoration:underline">N O N &nbsp; A U T O R I Z Z I A M O</span></div>
+<div class="tx" style="margin-left:22px">La pubblicazione dei lavori / fotografie / riprese filmate effettuate durante le recite, saggi, feste di fine anno.</div>
+<div class="dc" style="margin-top:22px">D I C H I A R I A M O</div>
+<div class="tx">che eventuali copie di CD / DVD realizzate dal personale docente, a scopo didattico, relativi a foto e filmati e consegnateci durante l'anno scolastico, verranno usate esclusivamente ad uso famigliare.</div>
+<div class="fb">${dr(m.data_fv)}<div class="fr">${fi(m.firma_fv_p,'Firma padre:')}${fi(m.firma_fv_m,'Firma madre')}</div></div>
+</div>
+
+<div class="sez np">${INT}<div class="tit">CONSENSO AL TRATTAMENTO DEI DATI PERSONALI</div>
+${BG('DATI PADRE',m.privacy_padre)}<br>${BG('DATI MADRE',m.privacy_madre)}
+<div class="dc">A C C O N S E N T O</div>
+<div class="tx">ai sensi e per gli effetti degli artt. 13 e 23 del D. L.gs. n. 196/2003, con la sottoscrizione del presente modulo, al trattamento dei dati personali secondo le modalità e nei limiti di cui all'informativa seguente anche dati personali rientranti nel novero dei dati "sensibili".</div>
+<div class="fb">${dr(m.data_priv)}<div class="fr">${fi(m.firma_priv_p,'Firma padre:')}${fi(m.firma_priv_m,'Firma madre')}</div></div>
+</div>
+
+<div class="sez np">${INT}
+<div class="tx" style="margin-top:10px"><em>Gentile Signore/a,</em><br>Desideriamo informarLa che il D.Lgs. n. 196 del 30 giugno 2003 prevede la tutela delle persone e di altri soggetti rispetto al trattamento dei dati personali. Secondo la normativa indicata, tale trattamento sarà improntato ai principi di correttezza, liceità e trasparenza.<br>Ai sensi dell'articolo 13 del D.Lgs. n. 196/2003, Le forniamo le seguenti informazioni:</div>
+<div class="pt" style="margin-top:10px"><strong>1.</strong> I dati da Lei forniti verranno trattati per le seguenti finalità: ${e('',m.info_priv?.finalita)}</div>
+<div class="pt"><strong>2.</strong> Il trattamento sarà effettuato con le seguenti modalità: ${cb(m.info_priv?.mod_manuale==='Sì','manuale')} ${cb(m.info_priv?.mod_info==='Sì','informatizzato')} ${cb(m.info_priv?.mod_altro==='Sì','altro')}</div>
+<div class="pt"><strong>3.</strong> Il conferimento dei dati è: ${cb(m.info_priv?.conferimento==='Facoltativo','facoltativo')} ${cb(m.info_priv?.conferimento==='Obbligatorio','obbligatorio')}</div>
+<div class="pt"><strong>4.</strong> Comunicazione dati: ${cb(!m.info_priv?.comunicazione||m.info_priv.comunicazione.includes('Non'),'I dati non saranno comunicati a terzi')} ${cb(m.info_priv?.comunicazione==='Comunicati','I dati potranno essere comunicati a: '+(m.info_priv?.com_a||'___________')+' — diffusi presso: '+(m.info_priv?.diffuso||'___________'))}</div>
+<div class="pt"><strong>5.</strong> Titolare del trattamento: ${e('',m.info_priv?.titolare||"Baby Parking L'Arcobaleno dei Bimbi – Via Goito 22, 15011 Acqui Terme (AL)")}</div>
+<div class="pt"><strong>6.</strong> Responsabile del trattamento: ${e('',m.info_priv?.responsabile||'Es Salmany Ikram')}</div>
+<div class="pt"><strong>7.</strong> In ogni momento potrà esercitare i Suoi diritti nei confronti del titolare del trattamento, ai sensi dell'art. 7 del D.Lgs. n. 196/2003.</div>
+</div>
+
+<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),400));<\/script>
+</body></html>`;
+
+  const w = window.open('', '_blank');
+  if (!w) { toast('Popup bloccato — consenti i popup per questo sito', 'rosso'); return; }
+  w.document.write(H);
+  w.document.close();
+}
+
+/* ─────────────────────────────────────────
+   TOAST
+───────────────────────────────────────── */
+function toast(msg, tipo = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show' + (tipo ? ' ' + tipo : '');
+  clearTimeout(window._tt);
+  window._tt = setTimeout(() => t.className = '', 3800);
+}
+</script>
+</body>
+</html>
