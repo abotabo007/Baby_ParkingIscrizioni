@@ -142,6 +142,10 @@ canvas.firma {
 .btn-invia { background: var(--verde-dark); color: white; font-size: 15px; padding: 13px 32px; }
 .btn-invia:hover:not(:disabled) { background: #094d3d; transform: translateY(-1px); }
 .btn-invia:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+.btn-bozza { background: white; border: 1.5px solid var(--verde); color: var(--verde-dark); font-size: 14px; padding: 11px 22px; }
+.btn-bozza:hover:not(:disabled) { background: var(--verde-light); transform: translateY(-1px); }
+.btn-bozza:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+.banner-bozza { background: #fff8e1; border: 1px solid #f9c74f; border-radius: 10px; padding: 10px 16px; font-size: 13px; color: #7a5c00; display: none; margin-bottom: 14px; line-height: 1.5; }
 
 /* ── CONFERMA ── */
 #pagina-conferma { display: none; text-align: center; padding: 56px 24px; }
@@ -695,12 +699,18 @@ canvas.firma {
 
   <div class="card" style="border:2px solid var(--verde)">
     <div class="card-titolo">Invia il Modulo Completo</div>
+    <div class="banner-bozza" id="banner-bozza">
+      📝 <strong>Bozza caricata</strong> — Hai una bozza salvata in precedenza. I campi sono stati precompilati automaticamente. Puoi modificarli e inviare il modulo oppure risalvare la bozza.
+    </div>
     <p style="font-size:13px;color:var(--testo2);margin-bottom:18px;line-height:1.6">
       Verifica tutti i dati prima di procedere. Una volta inviato, il modulo sarà archiviato nel sistema e disponibile nell'area Gestione da qualsiasi dispositivo.
     </p>
     <div class="nav-bottom">
       <button class="btn btn-prev" onclick="indietro()">← Indietro</button>
-      <button class="btn btn-invia" id="btn-invia" onclick="inviaModulo()">📤 Invia Iscrizione</button>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn btn-bozza" id="btn-bozza" onclick="salvaComeBozza()">💾 Salva bozza</button>
+        <button class="btn btn-invia" id="btn-invia" onclick="inviaModulo()">📤 Invia Iscrizione</button>
+      </div>
     </div>
   </div>
 </div>
@@ -944,6 +954,13 @@ async function inviaModulo() {
 
     if (!json.ok) throw new Error(json.errore || 'Errore server');
 
+    // Se esisteva una bozza, eliminala (invio definitivo completato)
+    const bozzaId = localStorage.getItem(BOZZA_KEY);
+    if (bozzaId) {
+      fetch(`${API}/api/bozze/${bozzaId}`, { method: 'DELETE' }).catch(() => {});
+      localStorage.removeItem(BOZZA_KEY);
+    }
+
     // Mostra conferma
     document.getElementById('contenuto-form').style.display = 'none';
     document.getElementById('pagina-conferma').style.display = 'block';
@@ -959,7 +976,126 @@ async function inviaModulo() {
   }
 }
 
-function nuovoModulo() { location.reload(); }
+/* ─────────────────────────────────────────
+   BOZZA — SALVATAGGIO E RIPRISTINO
+───────────────────────────────────────── */
+const BOZZA_KEY = 'arcobaleno_bozza_id';
+
+async function salvaComeBozza() {
+  const btn = document.getElementById('btn-bozza');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Salvataggio…';
+
+  // Raccoglie dati senza validazione: riusa l'id bozza esistente se disponibile
+  const bozzaId = localStorage.getItem(BOZZA_KEY);
+  const dati = raccogliDati();
+  if (bozzaId) dati.id = bozzaId; // mantieni lo stesso id per fare UPSERT
+
+  try {
+    const res = await fetch(`${API}/api/bozze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dati),
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.errore || 'Errore server');
+
+    // Salva l'id bozza anche in localStorage per ripristino rapido al reload
+    localStorage.setItem(BOZZA_KEY, json.id);
+    toast('✅ Bozza salvata — puoi chiudere e riprendere in seguito', 'verde');
+  } catch (err) {
+    toast('Errore salvataggio bozza: ' + err.message, 'rosso');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '💾 Salva bozza';
+  }
+}
+
+function ripristinaValori(dati) {
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+  const setChk = (id, val) => { const el = document.getElementById(id); if (el) el.checked = (val === 'Sì'); };
+
+  set('data-isc', dati.data_isc); set('data-med', dati.data_med);
+  set('data-del', dati.data_del); set('data-fv', dati.data_fv); set('data-priv', dati.data_priv);
+
+  const p = dati.padre || {};
+  set('p-nome',p.nome); set('p-natoa',p.natoa); set('p-prov',p.prov); set('p-dnasc',p.dnasc);
+  set('p-comune',p.comune); set('p-cap',p.cap); set('p-via',p.via); set('p-civ',p.civ);
+  set('p-cf',p.cf); set('p-cell1',p.cell1); set('p-cell2',p.cell2); set('p-email',p.email);
+
+  const m = dati.madre || {};
+  set('m-nome',m.nome); set('m-natoa',m.natoa); set('m-prov',m.prov); set('m-dnasc',m.dnasc);
+  set('m-comune',m.comune); set('m-cap',m.cap); set('m-via',m.via); set('m-civ',m.civ);
+  set('m-cf',m.cf); set('m-cell1',m.cell1); set('m-cell2',m.cell2); set('m-email',m.email);
+
+  const b = dati.bambino || {};
+  set('b-nome',b.nome); set('b-natoa',b.natoa); set('b-prov',b.prov); set('b-dnasc',b.dnasc);
+  set('b-comune',b.comune); set('b-cap',b.cap); set('b-via',b.via); set('b-civ',b.civ);
+  set('b-cf',b.cf);
+
+  // Situazione e consenso (radio/stato)
+  if (dati.situazione) { S.sit = dati.situazione; document.querySelectorAll('[name="situazione"]').forEach(r => { if (r.value === dati.situazione) r.checked = true; }); }
+  if (dati.consenso_att) { S.cons = dati.consenso_att; document.querySelectorAll('[name="consenso"]').forEach(r => { if (r.value === dati.consenso_att) r.checked = true; }); }
+
+  const med = dati.medico || {};
+  set('med-nome',med.nome); set('med-natoa',med.natoa); set('med-prov',med.prov);
+  set('med-dnasc',med.dnasc); set('med-comune',med.comune); set('med-cap',med.cap);
+  set('med-via',med.via); set('med-civ',med.civ); set('med-cf',med.cf);
+  set('med-minore',med.minore); set('med-allergie-desc',med.desc_allergie);
+  set('med-reazione',med.reazione); set('med-cure',med.cure);
+  if (med.allergie) { S.allergie = med.allergie; document.querySelectorAll('[name="allergie"]').forEach(r => { if (r.value === med.allergie) r.checked = true; }); }
+  if (med.tetano) { S.tetano = med.tetano; document.querySelectorAll('[name="tetano"]').forEach(r => { if (r.value === med.tetano) r.checked = true; }); }
+
+  const del_ = dati.delega || {};
+  set('del-madre',del_.madre); set('del-padre',del_.padre);
+  if (Array.isArray(del_.persone)) {
+    del_.persone.forEach(d => { if (d.nome) aggiungiDelegato(d.nome, d.doc, d.rel); });
+  }
+
+  const fv = dati.fv || {};
+  set('fv-madre',fv.madre); set('fv-padre',fv.padre);
+  if (fv.realizzazione) { S.fvReal = fv.realizzazione; document.querySelectorAll('[name="fv-real"]').forEach(r => { if (r.value === fv.realizzazione) r.checked = true; }); }
+  if (fv.pubblicazione) { S.fvPub = fv.pubblicazione; document.querySelectorAll('[name="fv-pub"]').forEach(r => { if (r.value === fv.pubblicazione) r.checked = true; }); }
+
+  const pp = dati.privacy_padre || {};
+  set('pp-nome',pp.nome); set('pp-natoa',pp.natoa); set('pp-prov',pp.prov); set('pp-dnasc',pp.dnasc);
+  set('pp-comune',pp.comune); set('pp-cap',pp.cap); set('pp-via',pp.via); set('pp-civ',pp.civ);
+  set('pp-cf',pp.cf); set('pp-cell1',pp.cell1); set('pp-email',pp.email);
+
+  const pm = dati.privacy_madre || {};
+  set('pm-nome',pm.nome); set('pm-natoa',pm.natoa); set('pm-prov',pm.prov); set('pm-dnasc',pm.dnasc);
+  set('pm-comune',pm.comune); set('pm-cap',pm.cap); set('pm-via',pm.via); set('pm-civ',pm.civ);
+  set('pm-cf',pm.cf); set('pm-cell1',pm.cell1); set('pm-email',pm.email);
+
+  const ip = dati.info_priv || {};
+  set('ip-finalita',ip.finalita); setChk('ip-manuale',ip.mod_manuale); setChk('ip-info',ip.mod_info); setChk('ip-altro',ip.mod_altro);
+  set('ip-coma',ip.com_a); set('ip-diff',ip.diffuso); set('ip-titolare',ip.titolare); set('ip-resp',ip.responsabile);
+  if (ip.conferimento) { S.conf = ip.conferimento; document.querySelectorAll('[name="conferimento"]').forEach(r => { if (r.value === ip.conferimento) r.checked = true; }); }
+  if (ip.rifiuto) { S.rif = ip.rifiuto; document.querySelectorAll('[name="rifiuto"]').forEach(r => { if (r.value === ip.rifiuto) r.checked = true; }); }
+  if (ip.comunicazione) { S.com = ip.comunicazione; document.querySelectorAll('[name="comunicazione"]').forEach(r => { if (r.value === ip.comunicazione) r.checked = true; }); }
+}
+
+async function caricaBozza() {
+  const bozzaId = localStorage.getItem(BOZZA_KEY);
+  if (!bozzaId) return;
+
+  try {
+    const res = await fetch(`${API}/api/bozze/${bozzaId}`);
+    if (!res.ok) { localStorage.removeItem(BOZZA_KEY); return; }
+    const json = await res.json();
+    if (!json.ok || !json.data) { localStorage.removeItem(BOZZA_KEY); return; }
+
+    ripristinaValori(json.data);
+    document.getElementById('banner-bozza').style.display = 'block';
+    toast('📝 Bozza caricata automaticamente', 'verde');
+  } catch (e) {
+    // Silenzioso: se il server non è raggiungibile, non blocchiamo il form
+    console.warn('Impossibile caricare la bozza:', e.message);
+  }
+}
+
+// Avvia il caricamento bozza appena la pagina è pronta
+window.addEventListener('DOMContentLoaded', caricaBozza);
 
 /* ─────────────────────────────────────────
    LOGIN ADMIN

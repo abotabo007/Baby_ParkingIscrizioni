@@ -51,6 +51,14 @@ async function initDB() {
       token     TEXT PRIMARY KEY,
       scade_il  BIGINT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS bozze (
+      id            TEXT PRIMARY KEY,
+      bambino_nome  TEXT,
+      aggiornato_il BIGINT NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW())::BIGINT,
+      json_completo TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_bozze_aggiornato ON bozze(aggiornato_il DESC);
   `);
   console.log('  ✅  Database pronto');
 }
@@ -124,6 +132,54 @@ app.post('/api/iscrizioni', rateLimit(60_000, 30), async (req, res) => {
     if (err.code === '23505') return res.status(409).json({ ok: false, errore: 'ID duplicato' });
     res.status(500).json({ ok: false, errore: 'Errore server' });
   }
+});
+
+/* ══ API BOZZE ══ */
+
+// POST /api/bozze  — salva o aggiorna una bozza
+app.post('/api/bozze', rateLimit(60_000, 60), async (req, res) => {
+  const m = req.body;
+  if (!m || typeof m !== 'object') return res.status(400).json({ ok: false, errore: 'Dati non validi' });
+
+  const id = m.id || ('boz_' + Date.now() + '_' + crypto.randomBytes(3).toString('hex'));
+  const now = Math.floor(Date.now() / 1000);
+
+  try {
+    await pool.query(`
+      INSERT INTO bozze (id, bambino_nome, aggiornato_il, json_completo)
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (id) DO UPDATE SET
+        bambino_nome  = EXCLUDED.bambino_nome,
+        aggiornato_il = EXCLUDED.aggiornato_il,
+        json_completo = EXCLUDED.json_completo
+    `, [id, m.bambino?.nome || null, now, JSON.stringify({ ...m, id })]);
+    res.json({ ok: true, id });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ ok: false, errore: 'Errore server' });
+  }
+});
+
+// GET /api/bozze/:id  — recupera una bozza
+app.get('/api/bozze/:id', rateLimit(60_000, 60), async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT json_completo FROM bozze WHERE id=$1',
+      [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ ok: false, errore: 'Bozza non trovata' });
+    res.json({ ok: true, data: JSON.parse(rows[0].json_completo) });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ ok: false, errore: 'Errore server' });
+  }
+});
+
+// DELETE /api/bozze/:id  — elimina una bozza (dopo invio definitivo)
+app.delete('/api/bozze/:id', rateLimit(60_000, 60), async (req, res) => {
+  const { rowCount } = await pool.query('DELETE FROM bozze WHERE id=$1', [req.params.id]);
+  if (rowCount === 0) return res.status(404).json({ ok: false, errore: 'Bozza non trovata' });
+  res.json({ ok: true });
 });
 
 /* ══ API ADMIN ══ */
