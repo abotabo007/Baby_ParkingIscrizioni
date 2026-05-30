@@ -182,6 +182,86 @@ app.delete('/api/bozze/:id', rateLimit(60_000, 60), async (req, res) => {
   res.json({ ok: true });
 });
 
+/* ══ API ADMIN — BOZZE ══ */
+
+// GET /api/admin/bozze  — lista bozze (solo admin)
+app.get('/api/admin/bozze', auth, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, bambino_nome, aggiornato_il, json_completo FROM bozze ORDER BY aggiornato_il DESC'
+    );
+    const data = rows.map(r => {
+      try {
+        const m = JSON.parse(r.json_completo);
+        m._id = r.id;
+        m._aggiornato_il = r.aggiornato_il;
+        return m;
+      } catch { return null; }
+    }).filter(Boolean);
+    res.json({ ok: true, data, totale: data.length });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ ok: false, errore: 'Errore server' });
+  }
+});
+
+// DELETE /api/admin/bozze/:id  — elimina bozza (solo admin)
+app.delete('/api/admin/bozze/:id', auth, async (req, res) => {
+  const { rowCount } = await pool.query('DELETE FROM bozze WHERE id=$1', [req.params.id]);
+  if (rowCount === 0) return res.status(404).json({ ok: false, errore: 'Bozza non trovata' });
+  res.json({ ok: true });
+});
+
+// POST /api/admin/bozze/:id/converti  — converte bozza in iscrizione definitiva (solo admin)
+app.post('/api/admin/bozze/:id/converti', auth, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { rows } = await client.query(
+      'SELECT json_completo FROM bozze WHERE id=$1',
+      [req.params.id]
+    );
+    if (!rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ ok: false, errore: 'Bozza non trovata' });
+    }
+
+    const m = JSON.parse(rows[0].json_completo);
+    const id = 'isc_' + Date.now() + '_' + crypto.randomBytes(3).toString('hex');
+    const ts = new Date().toLocaleString('it-IT');
+
+    await client.query(`
+      INSERT INTO iscrizioni
+        (id,timestamp,bambino_nome,bambino_dnasc,bambino_cf,
+         padre_nome,padre_cf,madre_nome,madre_cf,
+         situazione,allergie,tetano,fv_real,consenso,delegati,json_completo)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+    `, [
+      id, ts,
+      m.bambino?.nome  || null, m.bambino?.dnasc || null, m.bambino?.cf   || null,
+      m.padre?.nome    || null, m.padre?.cf      || null,
+      m.madre?.nome    || null, m.madre?.cf      || null,
+      m.situazione     || null, m.medico?.allergie || null,
+      m.medico?.tetano || null, m.fv?.realizzazione || null,
+      m.consenso_att   || null,
+      JSON.stringify(m.delega?.persone || []),
+      JSON.stringify({ ...m, id }),
+    ]);
+
+    await client.query('DELETE FROM bozze WHERE id=$1', [req.params.id]);
+    await client.query('COMMIT');
+    res.json({ ok: true, id });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error(err.message);
+    if (err.code === '23505') return res.status(409).json({ ok: false, errore: 'ID duplicato' });
+    res.status(500).json({ ok: false, errore: 'Errore server' });
+  } finally {
+    client.release();
+  }
+});
+
 /* ══ API ADMIN ══ */
 
 // POST /api/admin/login
